@@ -6,10 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @EnableAutoConfiguration
-public class MembershipsApplication {
+public class TimelinesApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MembershipsApplication.class, args);
+        SpringApplication.run(TimelinesApplication.class, args);
     }
 
 }
