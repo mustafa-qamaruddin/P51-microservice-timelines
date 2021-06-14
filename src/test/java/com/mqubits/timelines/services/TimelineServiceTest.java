@@ -4,8 +4,8 @@ import com.mqubits.timelines.models.dto.TimelineDTO;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +29,11 @@ class TimelineServiceTest {
 
     private MockWebServer mockWebServer = new MockWebServer();
 
-    @Before
+    @BeforeEach
     void setup() {
         try {
             mockWebServer.start(InetAddress.getByName("0.0.0.0"), 8080);
             mockWebServer.url("/starlighter/api/v1/membership");
-            mockWebServer.enqueue(new MockResponse().setResponseCode(200));
-            mockWebServer.enqueue(new MockResponse().setResponseCode(404));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -50,6 +48,7 @@ class TimelineServiceTest {
         timelineService.createTimeline(new TimelineDTO(testEmployer, testTimeline));
 
         // fetch timeline
+        mockWebServer.enqueue(new MockResponse().setResponseCode(200));
         var timeline = timelineService.fetchTimeline(testTimeline, testEmployee);
         assertTrue(timelineService.openSessions.containsKey(testEmployee));
         assertFalse(timeline.isEmpty());
@@ -61,7 +60,7 @@ class TimelineServiceTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        assertEquals("/starlighter/api/v1/membership", request1.getPath());
+        assertEquals("/starlighter/api/v1/membership?customerId=testEmployee&timeline=testTimeline", request1.getPath());
         assertEquals("GET", request1.getMethod());
 
         // revoke timeline
@@ -71,11 +70,12 @@ class TimelineServiceTest {
         assertFalse(timelineService.openSessions.containsKey(testEmployee));
 
         // fetch timeline again fails
+        mockWebServer.enqueue(new MockResponse().setResponseCode(404));
         timeline = timelineService.fetchTimeline(testTimeline, testEmployee);
         assertTrue(timeline.isEmpty());
     }
 
-    @After
+    @AfterEach
     void teardown() {
         try {
             mockWebServer.shutdown();

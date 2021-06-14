@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.MalformedURLException;
@@ -61,7 +62,15 @@ public class TimelineService {
         } catch (MalformedURLException | URISyntaxException e) {
             return Optional.empty();
         }
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+
+        ResponseEntity<String> response = null;
+
+        try {
+            response = restTemplate.getForEntity(url, String.class);
+        } catch (HttpClientErrorException e) {
+            return Optional.empty();
+        }
+
         if (response.getStatusCode().is2xxSuccessful()) {
             openSessions.put(customerId, timelineId);
             try {
