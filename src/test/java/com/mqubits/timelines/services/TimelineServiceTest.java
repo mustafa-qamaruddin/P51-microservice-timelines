@@ -1,61 +1,86 @@
 package com.mqubits.timelines.services;
 
+import com.mqubits.timelines.models.dto.TimelineDTO;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.concurrent.TimeUnit;
+import java.io.IOException;
+import java.net.InetAddress;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @DirtiesContext
-@EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"})
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class TimelineServiceTest {
 
-    // @todo mock http request
-
     @Autowired
     TimelineService timelineService;
 
-    @Autowired
-    TestKafkaConsumer testKafkaConsumer;
+    private MockWebServer mockWebServer = new MockWebServer();
+
+    @Before
+    void setup() {
+        try {
+            mockWebServer.start(InetAddress.getByName("0.0.0.0"), 8080);
+            mockWebServer.url("/starlighter/api/v1/membership");
+            mockWebServer.enqueue(new MockResponse().setResponseCode(200));
+            mockWebServer.enqueue(new MockResponse().setResponseCode(404));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Test
     void canCRUDMembership() {
-        // create membership
-        var testemployer = "testEmployer";
+        // create timeline
+        var testEmployer = "testEmployer";
         var testEmployee = "testEmployee";
         var testTimeline = "testTimeline";
-        timelineService.createMembership(new MembershipDTO(testemployer, testEmployee, testTimeline));
+        timelineService.createTimeline(new TimelineDTO(testEmployer, testTimeline));
 
-        // check membership
-        assertFalse(timelineService.checkMembership(testemployer, testTimeline));
-        assertTrue(timelineService.checkMembership(testEmployee, testTimeline));
+        // fetch timeline
+        var timeline = timelineService.fetchTimeline(testTimeline, testEmployee);
+        assertTrue(timelineService.openSessions.containsKey(testEmployee));
+        assertFalse(timeline.isEmpty());
 
-        // revoke membership
-        timelineService.revokeMembership(testEmployee, testTimeline);
-        assertFalse(timelineService.checkMembership(testEmployee, testTimeline));
+        // confirm that your app made the HTTP requests you were expecting.
+        RecordedRequest request1 = null;
+        try {
+            request1 = mockWebServer.takeRequest();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        assertEquals("/starlighter/api/v1/membership", request1.getPath());
+        assertEquals("GET", request1.getMethod());
 
-        // is notification pushed to kafka?
-        verifyCountDown(testKafkaConsumer);
-        assertEquals(testKafkaConsumer.getTimelineDTO().getCustomer(), testEmployee);
-        assertEquals(testKafkaConsumer.getTimelineDTO().getTimeline(), testTimeline);
+        // revoke timeline
+        timelineService.suspendTimeline(new TimelineDTO(testEmployee, testTimeline));
+
+        // sessions closed on revoke
+        assertFalse(timelineService.openSessions.containsKey(testEmployee));
+
+        // fetch timeline again fails
+        timeline = timelineService.fetchTimeline(testTimeline, testEmployee);
+        assertTrue(timeline.isEmpty());
     }
 
-    private void verifyCountDown(TestKafkaConsumer consumer) {
+    @After
+    void teardown() {
         try {
-            consumer.getLatch().await(59, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            consumer.resetLatch();
+            mockWebServer.shutdown();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        assertThat(consumer.getLatch().getCount(), equalTo(0L));
     }
 }

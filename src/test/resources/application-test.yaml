@@ -17,3 +17,9 @@ spring:
           json:
             trusted:
               packages: com.mqubits.*
+
+membership:
+  scheme: http
+  host: 0.0.0.0
+  path: /starlighter/api/v1/membership
+  port: 8080

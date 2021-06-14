@@ -1,6 +1,7 @@
 package com.mqubits.timelines.models;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
@@ -8,8 +9,13 @@ import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
-public class Timeline {
+public class Message {
     @Id
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(
+            name = "system-uuid",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
     @Column(name = "id", updatable = false, nullable = false, unique = true)
     private String id;
 
@@ -21,16 +27,4 @@ public class Timeline {
     @UpdateTimestamp
     private Timestamp updatedAt;
 
-    private String owner;
-
-    @OneToMany
-    private List<Message> messages;
-
-    public Timeline() {
-    }
-
-    public Timeline(String id, String owner) {
-        this.owner = owner;
-        this.id = id;
-    }
 }

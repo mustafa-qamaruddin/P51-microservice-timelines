@@ -19,16 +19,16 @@ import java.util.concurrent.ExecutionException;
 @Component
 public class TimelineService {
 
-    @Value("membership.scheme")
+    @Value("${membership.scheme}")
     protected String membershipScheme;
 
-    @Value("membership.host")
+    @Value("${membership.host}")
     protected String membershipHost;
 
-    @Value("membership.path")
+    @Value("${membership.path}")
     protected String membershipPath;
 
-    @Value("membership.port")
+    @Value("${membership.port}")
     protected String membershipPort;
 
     @Autowired
