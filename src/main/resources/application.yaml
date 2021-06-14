@@ -1,6 +1,6 @@
 server:
   servlet:
-    context-path: /starlighter/api/v1
+    context-path: /clocktower/api/v1
 spring:
   h2:
     console:
