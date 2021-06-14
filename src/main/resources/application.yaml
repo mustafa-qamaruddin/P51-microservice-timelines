@@ -1,0 +1,39 @@
+server:
+  servlet:
+    context-path: /starlighter/api/v1
+spring:
+  h2:
+    console:
+      enabled: false
+  datasource:
+    url: jdbc:h2:file:./customers;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+  kafka:
+    bootstrap-servers: kafka-release.emmet-brown.svc.cluster.local:9092
+    retries: 1
+    batch-size: 1
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: george-mcfly
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: com.mqubits.*
+membership:
+  scheme: http
+  host: memberships.memberships-microservices.svc.cluster.local
+  path: /starlighter/api/v1/membership
+  port: 8080
