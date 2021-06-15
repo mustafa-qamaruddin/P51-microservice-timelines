@@ -67,7 +67,6 @@ public class TimelineService {
         try {
             response = restTemplate.getForEntity(url, String.class);
         } catch (HttpClientErrorException e) {
-            System.out.println("unknown host");
             return Optional.empty();
         }
 
@@ -76,11 +75,9 @@ public class TimelineService {
             try {
                 return Optional.of(timelineRepository.findOneById(timelineId).get());
             } catch (InterruptedException | ExecutionException e) {
-                System.out.println("findone doesn't work");
                 return Optional.empty();
             }
         } else {
-            System.out.println("unauthorized");
             return Optional.empty();
         }
     }
