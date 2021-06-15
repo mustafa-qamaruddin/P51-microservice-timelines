@@ -1,6 +1,6 @@
 package com.mqubits.timelines.services;
 
-import com.mqubits.timelines.models.dto.TimelineDTO;
+import com.mqubits.memberships.models.dto.TimelineDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +20,6 @@ public class MembershipKafkaConsumer {
     @KafkaListener(topics = TOPIC_MEMBERSHIP)
     public void receive(TimelineDTO timelineDTO) {
         LOGGER.info("received payload='{}'", timelineDTO.toString());
-        timelineService.suspendTimeline(timelineDTO);
+        timelineService.suspendTimeline(timelineDTO.getCustomer());
     }
 }

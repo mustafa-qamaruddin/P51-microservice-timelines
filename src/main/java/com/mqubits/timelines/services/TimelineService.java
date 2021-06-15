@@ -1,7 +1,6 @@
 package com.mqubits.timelines.services;
 
 import com.mqubits.timelines.models.Timeline;
-import com.mqubits.timelines.models.dto.TimelineDTO;
 import com.mqubits.timelines.repositories.TimelineRepository;
 import org.apache.http.client.utils.URIBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +36,13 @@ public class TimelineService {
 
     ConcurrentHashMap<String, String> openSessions = new ConcurrentHashMap<>();
 
-    public void createTimeline(TimelineDTO timelineDTO) {
-        var network = new Timeline(timelineDTO.getTimeline(), timelineDTO.getCustomer());
+    public void createTimeline(String timeline, String employer) {
+        var network = new Timeline(timeline, employer);
         timelineRepository.save(network);
     }
 
-    public void suspendTimeline(TimelineDTO timelineDTO) {
-        openSessions.remove(timelineDTO.getCustomer());
+    public void suspendTimeline(String customer) {
+        openSessions.remove(customer);
     }
 
     public Optional<Timeline> fetchTimeline(String timelineId, String customerId) {

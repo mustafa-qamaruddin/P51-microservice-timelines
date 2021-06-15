@@ -6,7 +6,7 @@ spring:
     console:
       enabled: false
   datasource:
-    url: jdbc:h2:file:./customers;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;
+    url: jdbc:h2:file:./timelines;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;
     driverClassName: org.h2.Driver
     username: sa
     password: password
@@ -34,6 +34,6 @@ spring:
               packages: com.mqubits.*
 membership:
   scheme: http
-  host: memberships.memberships-microservices.svc.cluster.local
-  path: /starlighter/api/v1/membership
+  host: memberships.microservices.svc.cluster.local
+  path: /strickland/api/v1/membership
   port: 8080

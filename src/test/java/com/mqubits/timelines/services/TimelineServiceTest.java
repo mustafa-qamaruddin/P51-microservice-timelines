@@ -1,6 +1,6 @@
 package com.mqubits.timelines.services;
 
-import com.mqubits.timelines.models.dto.TimelineDTO;
+import com.mqubits.customers.models.dto.TimelineDTO;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -40,12 +40,12 @@ class TimelineServiceTest {
     }
 
     @Test
-    void canCRUDMembership() {
+    void canCRUDTimelines() {
         // create timeline
         var testEmployer = "testEmployer";
         var testEmployee = "testEmployee";
         var testTimeline = "testTimeline";
-        timelineService.createTimeline(new TimelineDTO(testEmployer, testTimeline));
+        timelineService.createTimeline(testTimeline, testEmployer);
 
         // fetch timeline
         mockWebServer.enqueue(new MockResponse().setResponseCode(200));
@@ -64,7 +64,7 @@ class TimelineServiceTest {
         assertEquals("GET", request1.getMethod());
 
         // revoke timeline
-        timelineService.suspendTimeline(new TimelineDTO(testEmployee, testTimeline));
+        timelineService.suspendTimeline(testEmployee);
 
         // sessions closed on revoke
         assertFalse(timelineService.openSessions.containsKey(testEmployee));
