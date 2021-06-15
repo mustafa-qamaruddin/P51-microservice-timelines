@@ -1,4 +1,4 @@
-package com.mqubits.timelines.models.dto;
+package com.mqubits.memberships.models.dto;
 
 public class TimelineDTO {
     private String customer;
