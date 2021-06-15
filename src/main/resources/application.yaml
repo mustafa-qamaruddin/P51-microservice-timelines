@@ -34,6 +34,6 @@ spring:
               packages: com.mqubits.*
 membership:
   scheme: http
-  host: memberships.microservices.svc.cluster.local
+  host: memberships
   path: /strickland/api/v1/membership
   port: 8080
